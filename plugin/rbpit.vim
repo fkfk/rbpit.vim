@@ -118,9 +118,11 @@ endfunction
 function! s:PitLoad(profname)
 "ruby: load pit config to global scope {{{
 ruby <<__END__
-profname = VIM.evaluate("g:pitconfig_default")
-config = Pit.get(profname)
-config.each {|key,value| key = "g:#{key}";VIM.command("silent! unlet #{key}|let #{key} = '#{value}'")}
+config = Pit.get(VIM.evaluate("a:profname"))
+config.each do |key,value|
+  key = "g:#{key}"
+  VIM.command("silent! unlet #{key}|let #{key} = '#{value}'")
+end
 __END__
 "}}}
 endfunction
@@ -132,21 +134,14 @@ ruby <<__END__
 profname = VIM.evaluate('l:profname')
 varcount = VIM.evaluate('a:0').to_i
 config = Pit.get(profname)
-data = {}
 (1..varcount).each do |count|
   varname = VIM.evaluate("a:#{count}")
   name = varname.gsub(/^[gsl]:/,"")
-  config[name] = ""
+  type = VIM.evaluate("type(#{varname})").to_i
+  VIM.evaluate("string(#{varname})") if type == 3 or type == 4
+  config[name] = VIM.evaluate(varname)
 end
-config.each do |key,value|
-  type = VIM.evaluate("type(g:#{key})")
-  if type == '3' or type == '4'
-    data[key] = VIM.evaluate("string(g:#{key})")
-  else
-    data[key] = VIM.evaluate("g:#{key}")
-  end
-end
-Pit.set(profname, :data => data)
+Pit.set(profname, :data => config)
 __END__
 "}}}
 endfunction
@@ -221,14 +216,9 @@ config = Pit.get(profname)
 data = {}
 config.each do |key,value|
   VIM.command("let l:type = type(g:#{key})")
-  type = VIM.evaluate('l:type')
-  if type == '3' or type == '4'
-    VIM.command("let l:val = string(g:#{key})")
-    data[key] = VIM.evaluate('l:val')
-    VIM.command("silent! unlet l:val")
-  else
-    data[key] = VIM.evaluate("g:#{key}")
-  end
+  type = VIM.evaluate('l:type').to_i
+  g_key = (type == 3 or type == 4)? "string(g:#{key})":"g:#{key}"
+  data[key] = VIM.evaluate(g_key)
 end
 Pit.set(profname,:data => data)
 __END__
