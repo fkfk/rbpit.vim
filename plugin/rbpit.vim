@@ -59,7 +59,7 @@ if !has('ruby')
 endif
 
 "ruby: require modules {{{
-:ruby << __END__
+ruby <<__END__
 require 'rubygems'
 require 'pit'
 __END__
