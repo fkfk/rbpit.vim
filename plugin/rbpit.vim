@@ -42,10 +42,10 @@
 "     :call PitSet({ 'foo': 'bar' })
 "     :call PitSet({ 'foo': 'bar' }, 'myprofile')
 
-if &cp || (exists('g:loaded_pitconfig') && g:loaded_pitconfig)
+if &cp || (exists('g:loaded_rbpit') && g:loaded_pitconfig)
   finish
 endif
-let g:loaded_pitconfig = 1
+let g:loaded_rbpit = 1
 
 if !exists('g:pitconfig_default')
   let g:pitconfig_default = 'vimrc'
