@@ -59,10 +59,20 @@ if !has('ruby')
 endif
 
 "ruby: require modules {{{
+let g:loaded_rbpit_module = 0
 ruby <<__END__
-require 'rubygems'
-require 'pit'
+begin
+  require 'rubygems'
+  require 'pit'
+  VIM.command("let g:loaded_rbpit_module = 1")
+rescue LoadError
+  VIM.command("let g:loaded_rbpit_module = 0")
+end
 __END__
+
+if g:loaded_rbpit_module == 0
+  finish
+end
 "}}}
 
 function! PitGet(...)
